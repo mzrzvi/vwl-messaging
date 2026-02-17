@@ -12,13 +12,10 @@ export const adminRouter = Router();
  * Triggers post-consult flow + cancels no-show cascade.
  *
  * POST /api/admin/appointment/:id/complete
- *
- * This replaces the AdvanceMD manual status update.
- * Can be called manually, from AdvanceMD webhook, or via a simple UI.
  */
 adminRouter.post(
   "/admin/appointment/:id/complete",
-  async (req: Request, res: Response) => {
+  async (req: Request<{ id: string }>, res: Response) => {
     try {
       const { id } = req.params;
 
@@ -65,7 +62,7 @@ adminRouter.post(
  */
 adminRouter.get(
   "/admin/appointment/:id",
-  async (req: Request, res: Response) => {
+  async (req: Request<{ id: string }>, res: Response) => {
     try {
       const { id } = req.params;
 
@@ -96,7 +93,7 @@ adminRouter.get(
  */
 adminRouter.get("/admin/appointments", async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
+    const status = req.query.status as string | undefined;
 
     const appointments = await db.appointment.findMany({
       where: status ? { status: status as any } : undefined,

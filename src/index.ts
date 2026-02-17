@@ -1,5 +1,7 @@
 import express from "express";
 import { config } from "./lib/config";
+import { db } from "./lib/db";
+import { redis } from "./lib/queue";
 import { calcomRouter } from "./routes/calcom";
 import { twilioRouter } from "./routes/twilio";
 import { adminRouter } from "./routes/admin";
@@ -23,12 +25,34 @@ app.use("/api", calcomRouter);
 app.use("/api", twilioRouter);
 app.use("/api", adminRouter);
 
+// Startup checks
+async function checkConnections() {
+  // Check Postgres
+  try {
+    await db.$queryRaw`SELECT 1`;
+    console.log("[STARTUP] ✅ PostgreSQL connected");
+  } catch (err) {
+    console.error("[STARTUP] ❌ PostgreSQL connection failed:", (err as Error).message);
+  }
+
+  // Check Redis
+  try {
+    const pong = await redis.ping();
+    if (pong === "PONG") {
+      console.log("[STARTUP] ✅ Redis connected");
+    }
+  } catch (err) {
+    console.error("[STARTUP] ❌ Redis connection failed:", (err as Error).message);
+  }
+}
+
 // Start worker (processes queued messages)
 createWorker();
 
 // Start server
-app.listen(config.PORT, () => {
-  console.log(`
+checkConnections().then(() => {
+  app.listen(config.PORT, () => {
+    console.log(`
 ╔══════════════════════════════════════════════════╗
 ║       Valley Weight Loss Messaging Server        ║
 ╠══════════════════════════════════════════════════╣
@@ -44,5 +68,6 @@ app.listen(config.PORT, () => {
 ║    Complete      → POST /api/admin/appointment/  ║
 ║                         :id/complete             ║
 ╚══════════════════════════════════════════════════╝
-  `);
+    `);
+  });
 });

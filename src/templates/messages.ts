@@ -5,7 +5,7 @@
  * Keep SMS under 160 chars where possible (or accept multi-segment).
  */
 
-interface TemplateData {
+export interface TemplateData {
   patientName: string;
   consultDate: string; // e.g. "Tuesday, March 4th"
   consultTime: string; // e.g. "2:00 PM"

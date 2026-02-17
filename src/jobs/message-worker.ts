@@ -234,7 +234,7 @@ function formatTime(date: Date): string {
 
 export function createWorker() {
   const worker = new Worker("messages", processMessage, {
-    connection: redis,
+    connection: redis as any,
     concurrency: 5,
   });
 

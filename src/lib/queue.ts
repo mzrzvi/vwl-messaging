@@ -8,7 +8,7 @@ export const redis = new IORedis(config.REDIS_URL, {
 
 // Single queue for all message types — BullMQ handles scheduling via delayed jobs
 export const messageQueue = new Queue("messages", {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     attempts: 3,
     backoff: { type: "exponential", delay: 60_000 }, // Retry after 1m, 2m, 4m

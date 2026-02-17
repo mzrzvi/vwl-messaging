@@ -10,7 +10,7 @@ datasource db {
 model Patient {
   id        String   @id @default(cuid())
   name      String
-  email     String
+  email     String   @unique
   phone     String
   calComId  String?  @unique // Cal.com attendee ID
   createdAt DateTime @default(now())
